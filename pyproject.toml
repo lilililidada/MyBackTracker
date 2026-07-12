@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mybacktrading"
+version = "0.1.0"
+description = "A modular Backtrader + AKShare + QuantStats research starter."
+requires-python = ">=3.9"
+dependencies = [
+    "akshare",
+    "backtrader",
+    "quantstats",
+    "pandas",
+    "numpy<2",
+    "matplotlib==3.2.2",
+]
+
+[project.scripts]
+mybacktrading = "mybacktrading.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

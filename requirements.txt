@@ -1,0 +1,6 @@
+akshare
+backtrader
+quantstats
+pandas
+numpy<2
+matplotlib==3.2.2
