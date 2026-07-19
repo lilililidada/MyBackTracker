@@ -2,6 +2,6 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
-.env
+src/mybacktrading/.env
 .idea/
 

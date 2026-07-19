@@ -2,5 +2,9 @@ akshare
 backtrader
 quantstats
 pandas
-numpy<2
-matplotlib==3.2.2
+dotenv
+IPython
+tickflow[all]
+numpy>=1.26,<3
+matplotlib>=3.8,<4
+tickflow[all]

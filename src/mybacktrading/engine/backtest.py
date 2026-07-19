@@ -6,7 +6,9 @@ import backtrader as bt
 import pandas as pd
 
 from mybacktrading.config import BacktestConfig
-from mybacktrading.data import fetch_akshare_stock_daily, load_csv_ohlcv
+from mybacktrading.data import (
+    fetch_a_stock_history_daily,
+)
 from mybacktrading.reports.quantstats_report import generate_quantstats_report, returns_to_series
 from mybacktrading.strategies import SmaCrossStrategy
 
@@ -19,12 +21,12 @@ def build_cerebro(
     slow_period: int,
     stake: int,
 ) -> bt.Cerebro:
-    """创建并配置 Backtrader 回测引擎。"""
+    """Create and configure a Backtrader engine."""
     cerebro = bt.Cerebro()
 
     feed = bt.feeds.PandasData(
         dataname=data,
-        datetime=None,
+        datetime=0,
         open="open",
         high="high",
         low="low",
@@ -50,17 +52,13 @@ def build_cerebro(
 
 def run_backtest(config: BacktestConfig) -> None:
     """执行完整回测流程。"""
-    if config.csv:
-        data = load_csv_ohlcv(config.csv)
-        asset_name = config.csv.stem
-    else:
-        data = fetch_akshare_stock_daily(
-            symbol=config.symbol,
-            start_date=config.start,
-            end_date=config.end,
-            adjust=config.adjust,
-        )
-        asset_name = config.symbol
+    data = fetch_a_stock_history_daily(
+        symbol=config.symbol,
+        start_date=config.start,
+        end_date=config.end,
+        adjust=config.adjust,
+    )
+    asset_name = config.symbol
 
     if len(data) < config.slow_period + 5:
         raise ValueError("数据长度不足，无法稳定计算慢速均线，请扩大日期范围或降低 slow_period。")
@@ -89,14 +87,4 @@ def run_backtest(config: BacktestConfig) -> None:
     if returns.empty:
         raise ValueError("TimeReturn 未生成收益率序列，无法生成 QuantStats 报告。")
 
-    if config.skip_report:
-        print("已跳过 QuantStats 报告生成。")
-        return
-
-    generate_quantstats_report(
-        returns=returns,
-        output_path=config.report,
-        title=f"{asset_name} SMA Cross Backtest",
-        benchmark=config.benchmark,
-    )
-    print(f"QuantStats 报告已生成: {config.report.resolve()}")
+    cerebro.plot(style="bar")

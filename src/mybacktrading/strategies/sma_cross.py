@@ -50,4 +50,4 @@ class SmaCrossStrategy(bt.Strategy):
 
         if self.crossover[0] < 0:
             self.log("CLOSE", current_close)
-            self.close()
+            self.sell()
