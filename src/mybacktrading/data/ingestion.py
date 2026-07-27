@@ -8,6 +8,7 @@ from typing import Optional
 import akshare as ak
 import pandas as pd
 
+from mybacktrading.data.db.csv_file_db import save_min_data_as_csv
 from mybacktrading.data.tickflow_adapter import fetch_a_stock_history_daily
 
 BACKTRADER_COLUMNS = ["open", "high", "low", "close", "volume", "openinterest"]
@@ -52,35 +53,6 @@ def fetch_etf_minute_data(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None
 ) -> pd.DataFrame:
-    """
-    获取 ETF 分钟级别行情数据（东方财富数据源）
-
-    参数:
-        symbol (str): ETF代码，需带市场前缀，如 "sh510300"（沪市）或 "sz159919"（深市）
-        period (str): 分钟周期，可选值: "1", "5", "15", "30", "60"，默认 "1"
-        adjust (str): 复权方式，"qfq" 前复权 / "hfq" 后复权，默认 "qfq"
-        start_date (str, optional): 开始日期，格式 "YYYY-MM-DD"，如 "2025-01-01"
-        end_date (str, optional): 结束日期，格式 "YYYY-MM-DD"，如 "2025-12-31"
-
-    返回:
-        pd.DataFrame: 包含以下字段的分钟线数据
-            - 时间: 分钟时间戳
-            - 开盘价 / 收盘价 / 最高价 / 最低价
-            - 成交量 / 成交额
-
-    示例:
-        # 获取沪深300ETF（510300）的1分钟数据
-        df = get_etf_minute_data("sh510300", period="1")
-        print(df.head())
-
-        # 获取指定日期范围的5分钟数据
-        df = get_etf_minute_data(
-            symbol="sh510300",
-            period="5",
-            start_date="2026-07-01",
-            end_date="2026-07-19"
-        )
-    """
     try:
         df = ak.fund_etf_hist_min_em(
             symbol=symbol,
@@ -95,7 +67,6 @@ def fetch_etf_minute_data(
         return pd.DataFrame()
 
 class TickFlowDataSource:
-
     def __init__(self):
         super().__init__()
 
@@ -149,4 +120,6 @@ def clean_ohlcv_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
 if __name__ == '__main__':
     df = fetch_etf_minute_data("588170", "1", "", "2026-07-17 08:30:00", "2026-07-17 16:32:00")
+    if not df.empty:
+        save_min_data_as_csv(df, "588170", "2026-07-17", "1")
     print(df.tail())
