@@ -10,16 +10,12 @@ from mybacktrading.data import (
     fetch_a_stock_history_daily,
 )
 from mybacktrading.reports.quantstats_report import generate_quantstats_report, returns_to_series
-from mybacktrading.strategies import SmaCrossStrategy
+from mybacktrading.strategies import SmaCrossStrategy, ETFTrendStrategy
 
 
 def build_cerebro(
     data: pd.DataFrame,
-    cash: float,
-    commission: float,
-    fast_period: int,
-    slow_period: int,
-    stake: int,
+    config: BacktestConfig,
 ) -> bt.Cerebro:
     """Create and configure a Backtrader engine."""
     cerebro = bt.Cerebro()
@@ -36,15 +32,35 @@ def build_cerebro(
     )
     cerebro.adddata(feed)
 
-    cerebro.addstrategy(
-        SmaCrossStrategy,
-        fast_period=fast_period,
-        slow_period=slow_period,
-    )
+    if config.strategy == "sma_cross":
+        cerebro.addstrategy(
+            SmaCrossStrategy,
+            fast_period=config.fast_period,
+            slow_period=config.slow_period,
+        )
+        cerebro.addsizer(bt.sizers.FixedSize, stake=config.stake)
+    elif config.strategy == "etf_trend":
+        cerebro.addstrategy(
+            ETFTrendStrategy,
+            ma_period=config.ma_period,
+            buy_pullback_pct=config.buy_pullback_pct,
+            buy_cash_pct=config.buy_cash_pct,
+            tp_mode=config.tp_mode,
+            tp_trail_pct=config.tp_trail_pct,
+            tp_partial_1_pct=config.tp_partial_1_pct,
+            tp_partial_1_ratio=config.tp_partial_1_ratio,
+            tp_partial_2_pct=config.tp_partial_2_pct,
+            tp_partial_2_ratio=config.tp_partial_2_ratio,
+            tp_partial_3_pct=config.tp_partial_3_pct,
+            tp_partial_3_ratio=config.tp_partial_3_ratio,
+            tp_atr_multiple=config.tp_atr_multiple,
+            tp_atr_period=config.tp_atr_period,
+        )
+    else:
+        raise ValueError(f"Unknown strategy: {config.strategy}")
 
-    cerebro.broker.setcash(cash)
-    cerebro.broker.setcommission(commission=commission)
-    cerebro.addsizer(bt.sizers.FixedSize, stake=stake)
+    cerebro.broker.setcash(config.cash)
+    cerebro.broker.setcommission(commission=config.commission)
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="timereturn", timeframe=bt.TimeFrame.Days)
 
     return cerebro
@@ -60,16 +76,22 @@ def run_backtest(config: BacktestConfig) -> None:
     )
     asset_name = config.symbol
 
-    if len(data) < config.slow_period + 5:
-        raise ValueError("数据长度不足，无法稳定计算慢速均线，请扩大日期范围或降低 slow_period。")
+    # 根据策略确定所需最小数据长度
+    if config.strategy == "sma_cross":
+        min_bars = config.slow_period + 5
+    elif config.strategy == "etf_trend":
+        min_bars = config.ma_period + 5
+    else:
+        min_bars = 50  # 安全兜底
+    if len(data) < min_bars:
+        raise ValueError(
+            f"数据长度不足 ({len(data)} < {min_bars})，无法稳定计算均线，"
+            f"请扩大日期范围或降低对应均线周期。"
+        )
 
     cerebro = build_cerebro(
         data=data,
-        cash=config.cash,
-        commission=config.commission,
-        fast_period=config.fast_period,
-        slow_period=config.slow_period,
-        stake=config.stake,
+        config=config,
     )
 
     start_value = cerebro.broker.getvalue()
