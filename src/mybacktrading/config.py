@@ -30,8 +30,8 @@ class BacktestConfig:
 
     # --- ETF 趋势跟踪策略参数 ---
     ma_period: int = 30
-    buy_pullback_pct: float = 0.03
-    buy_cash_pct: float = 0.20
+    buy_pullback_pct: float = 0.1
+    buy_cash_pct: float = 0.50
     tp_mode: Literal["none", "trailing", "partial", "atr"] = "none"
     tp_trail_pct: float = 0.05
     tp_partial_1_pct: float = 0.05

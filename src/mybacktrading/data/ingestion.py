@@ -118,6 +118,16 @@ def clean_ohlcv_dataframe(data: pd.DataFrame) -> pd.DataFrame:
 
     return cleaned[BACKTRADER_COLUMNS]
 
+
+
+def fetch_benchmark_data(benchmark: str, start_date: str, end_date: str):
+    """TODO: 自行实现基准指数行情获取，返回含 close 列的 DataFrame。
+    """
+    raise NotImplementedError(
+        f"请实现 fetch_benchmark_data(benchmark={benchmark!r}, ...) 以获取基准行情。"
+    )
+
+
 if __name__ == '__main__':
     df = fetch_etf_minute_data("588170", "1", "", "2026-07-17 08:30:00", "2026-07-17 16:32:00")
     if not df.empty:

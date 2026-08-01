@@ -12,7 +12,7 @@ from mybacktrading.engine import run_backtest
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Backtrader + AKShare + QuantStats modular starter")
     parser.add_argument("--symbol", default="510630", help="A 股代码会ETF，例如 600519")
-    parser.add_argument("--start", default="2021-01-01", help="开始日期，格式 YYYY-MM-DD")
+    parser.add_argument("--start", default="2026-05-01", help="开始日期，格式 YYYY-MM-DD")
     parser.add_argument("--end", default="2026-07-28", help="结束日期，格式 YYYY-MM-DD")
     parser.add_argument("--adjust", default="forward", choices=["qfq", "hfq", ""], help="复权方式")
     parser.add_argument("--csv", default="", help="可选: 本地 OHLCV CSV 文件")
@@ -31,9 +31,9 @@ def parse_args() -> argparse.Namespace:
 
     # --- ETF 趋势跟踪策略参数 ---
     parser.add_argument("--ma-period", type=int, default=30, help="均线周期")
-    parser.add_argument("--buy-pullback-pct", type=float, default=0.03, help="回撤加仓阈值")
-    parser.add_argument("--buy-cash-pct", type=float, default=0.20, help="每次买入可用资金比例")
-    parser.add_argument("--tp-mode", default="atr",
+    parser.add_argument("--buy-pullback-pct", type=float, default=0.1, help="回撤加仓阈值")
+    parser.add_argument("--buy-cash-pct", type=float, default=0.50, help="每次买入可用资金比例")
+    parser.add_argument("--tp-mode", default="trailing",
                         choices=["none", "trailing", "partial", "atr"],
                         help="止盈模式")
     parser.add_argument("--tp-trail-pct", type=float, default=0.05, help="移动止盈回撤阈值")
