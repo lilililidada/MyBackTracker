@@ -5,3 +5,4 @@ venv/
 src/mybacktrading/.env
 .idea/
 src/mybacktrading/data/db/csv_data
+.qlib

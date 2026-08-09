@@ -7,6 +7,7 @@ from typing import Optional
 
 import akshare as ak
 import pandas as pd
+from sympy import false
 
 from mybacktrading.data.db.csv_file_db import save_min_data_as_csv
 from mybacktrading.data.tickflow_adapter import fetch_a_stock_history_daily
@@ -129,7 +130,6 @@ def fetch_benchmark_data(benchmark: str, start_date: str, end_date: str):
 
 
 if __name__ == '__main__':
-    df = fetch_etf_minute_data("588170", "1", "", "2026-07-17 08:30:00", "2026-07-17 16:32:00")
-    if not df.empty:
-        save_min_data_as_csv(df, "588170", "2026-07-17", "1")
-    print(df.tail())
+    tf = TickFlowDataSource()
+    df = tf.get_a_stock_history_daily("588170", "2020-07-17 08:30:00", "2026-09-17 16:32:00", "forward")
+    df.to_csv("588170_1.csv", index=false)
