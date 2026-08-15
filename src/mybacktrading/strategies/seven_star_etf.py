@@ -1,0 +1,2 @@
+class SevenStarStrategy:
+    pass
